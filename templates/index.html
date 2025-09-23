@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Emotion Based Music Recommendation</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <style>
+    body {
+      background: linear-gradient(135deg, #1d2671, #c33764);
+      font-family: "Segoe UI", sans-serif;
+      min-height: 100vh;
+      color: #fff;
+    }
+    h1 {
+      margin: 20px 0;
+      text-align: center;
+      font-weight: bold;
+      color: #e0e0e0;
+    }
+    .navbar {
+      border-radius: 0 0 12px 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    }
+    .card {
+      border-radius: 15px;
+      box-shadow: 0px 4px 20px rgba(0,0,0,0.25);
+      background: #f8f9fa;
+      color: #000;
+      height: 100%;
+      border: none;
+    }
+    #preview {
+      max-width: 80%;
+      height: auto;
+      border-radius: 10px;
+      display: none;
+      margin: auto;
+      border: 1px solid #dee2e6;
+    }
+    .btn-custom {
+      border-radius: 25px;
+      font-weight: 600;
+      padding: 10px 25px;
+      transition: all 0.2s ease-in-out;
+    }
+    .btn-custom:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+    #emotionBox {
+      font-size: 1.3rem;
+      font-weight: 500;
+      text-align: center;
+      padding: 25px;
+      border-radius: 15px;
+      margin-bottom: 15px;
+      background: #ffffff;
+      box-shadow: inset 0px 2px 8px rgba(0,0,0,0.08);
+      color: #343a40;
+    }
+    .emoji {
+      font-size: 4.5rem;
+      display: block;
+      margin-bottom: 10px;
+    }
+    /* Song List Enhancements */
+    #play-all-btn {
+        margin-bottom: 15px;
+    }
+    .song-item {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      padding: 15px;
+      border-radius: 12px;
+      margin-bottom: 10px;
+      background-color: #ffffff;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      transition: all 0.2s ease-in-out;
+      border-left: 5px solid transparent;
+    }
+    .song-item.playing {
+        border-left-color: #007bff;
+        background-color: #e9f0f8;
+    }
+    .song-info {
+        flex: 1 1 200px;
+        margin-right: 15px;
+    }
+    .song-info h6 {
+      font-weight: 700;
+      color: #343a40;
+      font-size: 1.1rem;
+    }
+    .song-info small {
+      color: #6c757d;
+      font-size: 0.9rem;
+    }
+    /* New Player Controls and Progress Bar */
+    .player-deck {
+        width: 100%;
+        margin-top: 10px;
+    }
+    .progress-container {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        width: 100%;
+    }
+    .song-progress {
+        width: 100%;
+        height: 8px;
+        cursor: pointer;
+        border-radius: 5px;
+    }
+    .song-duration {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: #6c757d;
+        white-space: nowrap;
+    }
+    .controls-container {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin-top: 10px;
+    }
+    .control-btn {
+        background: transparent;
+        border: none;
+        color: #495057;
+        cursor: pointer;
+        padding: 0;
+        transition: color 0.2s;
+    }
+    .control-btn:hover {
+        color: #007bff;
+    }
+    .control-btn svg {
+        width: 22px;
+        height: 22px;
+        fill: currentColor;
+    }
+    .volume-controls {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .volume-slider {
+        width: 80px;
+        cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark px-4">
+    <a class="navbar-brand fw-bold" href="#">🎶 Emotion Music</a>
+    <div class="ms-auto">
+      <a class="btn btn-outline-light btn-sm me-2" href="#">Home</a>
+      <a class="btn btn-outline-light btn-sm me-2" href="#">Login</a>
+      <a class="btn btn-light btn-sm text-dark" href="#">Signup</a>
+    </div>
+  </nav>
+
+  <div class="container-fluid mt-4 px-4">
+    <h1>Emotion-Based Music Recommender</h1>
+
+    <div class="d-flex justify-content-center mb-4">
+      <button class="btn btn-success btn-custom me-3" onclick="showWebcam()">Use Webcam</button>
+      <button class="btn btn-primary btn-custom" onclick="showUpload()">Upload Image</button>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-md-6">
+        <div class="card p-4 text-center">
+          <div id="webcamSection" style="display: none;">
+            <h5 class="mb-3 text-dark">Live Webcam</h5>
+            <img src="{{ url_for('video_feed') }}" width="100%" class="rounded shadow-sm" />
+          </div>
+          <div id="uploadSection" style="display: block;">
+            <h5 class="mb-3 text-dark">Upload Image</h5>
+            <input type="file" id="fileInput" accept="image/*" class="form-control mb-3">
+            <img id="preview" class="shadow-sm mb-3" />
+            <button class="btn btn-warning btn-custom" id="detectBtn">Detect Emotion</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="card p-4">
+          <h5 class="text-center mb-3 text-dark">Your Emotion</h5>
+          <div id="emotionBox">
+            <span class="emoji">🙂</span>
+            <p id="emotionText">No emotion detected yet</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row mt-4">
+      <div class="col-12">
+        <div class="card p-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="text-dark m-0">Recommended Songs 🎶</h5>
+                <button id="play-all-btn" class="btn btn-sm btn-primary">Play All</button>
+            </div>
+          <div id="ResultArea">
+             <p class='text-muted text-center mt-3'>Songs will appear here...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    const emotionMap = {
+      "Happy": {emoji: "😄", desc: "You look cheerful and joyful!"},
+      "Sad": {emoji: "😢", desc: "You seem down. Music can cheer you up."},
+      "Angry": {emoji: "😠", desc: "You look frustrated. Relax with some calming songs."},
+      "Surprise": {emoji: "😲", desc: "You look surprised! Enjoy some exciting tracks."},
+      "Fear": {emoji: "😨", desc: "You look worried. Here’s something to comfort you."},
+      "Disgust": {emoji: "🤢", desc: "Not feeling great? Music might help."},
+      "Neutral": {emoji: "😐", desc: "You look calm and neutral. Let’s keep the vibe steady."}
+    };
+
+    let currentlyPlaying = null;
+    let playlist = [];
+    let currentPlaylistIndex = -1;
+
+    const ICONS = {
+        PLAY: '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"></path></svg>',
+        PAUSE: '<svg viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"></path></svg>',
+        VOLUME_HIGH: '<svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"></path></svg>',
+        VOLUME_MUTED: '<svg viewBox="0 0 24 24"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"></path></svg>'
+    };
+
+    function formatTime(seconds) {
+        if (isNaN(seconds) || seconds < 0) return "0:00";
+        const minutes = Math.floor(seconds / 60);
+        const secs = Math.floor(seconds % 60);
+        return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
+    }
+
+    function updateEmotionUI(emotion) {
+      const box = document.getElementById("emotionBox");
+      if (emotion && emotionMap[emotion]) {
+        box.innerHTML = `<span class="emoji">${emotionMap[emotion].emoji}</span><p><b>${emotion}</b> - ${emotionMap[emotion].desc}</p>`;
+      } else {
+        box.innerHTML = `<span class="emoji">🙂</span><p>No emotion detected yet</p>`;
+      }
+    }
+
+    function showWebcam() {
+        document.getElementById("webcamSection").style.display = "block";
+        document.getElementById("uploadSection").style.display = "none";
+    }
+    function showUpload() {
+        document.getElementById("webcamSection").style.display = "none";
+        document.getElementById("uploadSection").style.display = "block";
+    }
+
+    document.getElementById('fileInput').addEventListener('change', function (event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const preview = document.getElementById('preview');
+                preview.src = e.target.result;
+                preview.style.display = "block";
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    document.getElementById('detectBtn').addEventListener('click', function () {
+        const input = document.getElementById('fileInput');
+        if (input.files.length === 0) {
+            alert("Please select an image!");
+            return;
+        }
+        const formData = new FormData();
+        formData.append('file', input.files[0]);
+        $.ajax({
+            url: '/upload', type: 'POST', data: formData, contentType: false, processData: false,
+            success: function (response) {
+                updateEmotionUI(response.emotion);
+                $.getJSON('/t', (data) => displaySongs(data));
+            },
+            error: () => alert("Error detecting emotion!")
+        });
+    });
+
+    // Main function to build and manage the song list
+    function displaySongs(data) {
+        const resultArea = $("#ResultArea");
+        resultArea.html("");
+        playlist = []; // Reset playlist
+
+        if (!data || data.length === 0) {
+            resultArea.html("<p class='text-muted text-center mt-3'>No songs available</p>");
+            $("#play-all-btn").hide();
+            return;
+        }
+        $("#play-all-btn").show();
+
+        const songList = $("<div class='song-list'></div>").appendTo(resultArea);
+
+        data.forEach((value, i) => {
+            const audio = new Audio(value.URL || "");
+            audio.preload = "metadata";
+            playlist.push({audio, index: i}); // Add to playlist
+
+            const songItem = $(`<div class="song-item" id="song-item-${i}"></div>`).appendTo(songList);
+            const songInfo = $(`<div class="song-info"><h6>🎶 ${value.Name}</h6><small>${value.Artist} • ${value.Album}</small></div>`).appendTo(songItem);
+            
+            const playerDeck = $("<div class='player-deck'></div>").appendTo(songItem);
+            const progressContainer = $("<div class='progress-container'><progress class='song-progress' value='0'></progress><span class='song-duration'>0:00 / 0:00</span></div>").appendTo(playerDeck);
+            const controlsContainer = $("<div class='controls-container'></div>").appendTo(playerDeck);
+
+            const playPauseBtn = $(`<button class="control-btn play-pause-btn" title="Play/Pause">${ICONS.PLAY}</button>`).appendTo(controlsContainer);
+            const volumeControls = $(`<div class="volume-controls"><button class="control-btn mute-btn" title="Mute/Unmute">${ICONS.VOLUME_HIGH}</button><input type="range" class="volume-slider" min="0" max="1" step="0.01" value="1" title="Volume"></div>`).appendTo(controlsContainer);
+            
+            const progressBar = progressContainer.find('.song-progress');
+            const durationSpan = progressContainer.find('.song-duration');
+
+            // Event listeners for each audio object
+            $(audio).on('loadedmetadata', () => {
+                progressBar.attr('max', audio.duration);
+                durationSpan.text(`0:00 / ${formatTime(audio.duration)}`);
+            });
+
+            $(audio).on('timeupdate', () => {
+                progressBar.val(audio.currentTime);
+                durationSpan.text(`${formatTime(audio.currentTime)} / ${formatTime(audio.duration)}`);
+            });
+
+            $(audio).on('ended', () => {
+                playNextInPlaylist(); // Automatically play next song
+            });
+
+            $(audio).on('play pause', () => updateGlobalPlayerState(audio));
+
+            // Attach data to elements for easy access in event handlers
+            songItem.data('audio', audio);
+        });
+        
+        setupEventDelegation(resultArea);
+    }
+    
+    function setupEventDelegation(container) {
+        container.off().on('click', '.play-pause-btn', function() {
+            const audio = $(this).closest('.song-item').data('audio');
+            togglePlay(audio);
+        }).on('click', '.mute-btn', function() {
+            const audio = $(this).closest('.song-item').data('audio');
+            audio.muted = !audio.muted;
+            $(this).html(audio.muted ? ICONS.VOLUME_MUTED : ICONS.VOLUME_HIGH);
+        }).on('input', '.volume-slider', function() {
+            const audio = $(this).closest('.song-item').data('audio');
+            audio.volume = $(this).val();
+        }).on('click', '.song-progress', function(e) {
+            const audio = $(this).closest('.song-item').data('audio');
+            const progressWidth = $(this).width();
+            const clickX = e.offsetX;
+            audio.currentTime = (clickX / progressWidth) * audio.duration;
+        });
+    }
+
+    $("#play-all-btn").on('click', function() {
+        if (playlist.length > 0) {
+            currentPlaylistIndex = 0;
+            const nextSong = playlist[currentPlaylistIndex];
+            togglePlay(nextSong.audio, true); // Force play
+        }
+    });
+
+    function playNextInPlaylist() {
+        if (currentPlaylistIndex > -1 && currentPlaylistIndex < playlist.length - 1) {
+            currentPlaylistIndex++;
+            const nextSong = playlist[currentPlaylistIndex];
+            togglePlay(nextSong.audio, true); // Force play
+        } else {
+            // End of playlist
+            stopAllPlayback();
+            currentPlaylistIndex = -1;
+        }
+    }
+    
+    function togglePlay(audio, forcePlay = false) {
+        if (currentlyPlaying && currentlyPlaying !== audio) {
+            currentlyPlaying.pause();
+        }
+
+        if (audio.paused || forcePlay) {
+            audio.play().catch(e => console.error("Playback failed:", e));
+            currentlyPlaying = audio;
+            // Update current index for playlist tracking
+            currentPlaylistIndex = playlist.findIndex(item => item.audio === audio);
+        } else {
+            audio.pause();
+            currentlyPlaying = null;
+            currentPlaylistIndex = -1;
+        }
+    }
+
+    function stopAllPlayback() {
+        if(currentlyPlaying) currentlyPlaying.pause();
+        currentlyPlaying = null;
+        $('.song-item.playing').removeClass('playing');
+        $('.play-pause-btn').html(ICONS.PLAY);
+    }
+
+    function updateGlobalPlayerState(activeAudio) {
+        $('.song-item').each(function() {
+            const itemAudio = $(this).data('audio');
+            const playBtn = $(this).find('.play-pause-btn');
+            if (itemAudio === activeAudio && !activeAudio.paused) {
+                $(this).addClass('playing');
+                playBtn.html(ICONS.PAUSE);
+            } else {
+                $(this).removeClass('playing');
+                playBtn.html(ICONS.PLAY);
+            }
+        });
+    }
+
+  </script>
+</body>
+</html>
