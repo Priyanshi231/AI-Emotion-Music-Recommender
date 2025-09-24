@@ -31,16 +31,6 @@ Based on the detected emotion, a playlist is generated. Users can play individua
 -   **Machine Learning**: TensorFlow/Keras, OpenCV
 -   **Music Source**: Spotify API, YouTube Music API, or another music database.
 
-## 🚀 Getting Started
-
-Follow these instructions to get a copy of the project up and running on your local machine.
-
-### Prerequisites
-
--   Python 3.8+
--   Node.js and npm
--   A webcam (for real-time detection)
-
 ## Usage
 
 1.  Navigate to the homepage.
