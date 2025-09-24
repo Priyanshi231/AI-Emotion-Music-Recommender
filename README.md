@@ -41,37 +41,6 @@ Follow these instructions to get a copy of the project up and running on your lo
 -   Node.js and npm
 -   A webcam (for real-time detection)
 
-### Installation
-
-1.  **Clone the repository:**
-    ```sh
-    git clone [https://github.com/Priyanshi231/AI-Emotion-Music-Recommender.git](https://github.com/Priyanshi231/AI-Emotion-Music-Recommender.git)
-    cd AI-Emotion-Music-Recommender
-    ```
-
-2.  **Install backend dependencies (Python):**
-    ```sh
-    pip install -r requirements.txt
-    ```
-
-3.  **Install frontend dependencies (if any):**
-    ```sh
-    # If you have a package.json file
-    npm install
-    ```
-
-4.  **Set up environment variables:**
-    Create a `.env` file in the root directory and add any necessary API keys (e.g., for a music service).
-    ```
-    MUSIC_API_KEY=your_api_key_here
-    ```
-
-5.  **Run the application:**
-    ```sh
-    python app.py
-    ```
-    Then, open your browser and navigate to `http://127.0.0.1:5000`.
-
 ## Usage
 
 1.  Navigate to the homepage.
@@ -81,16 +50,6 @@ Follow these instructions to get a copy of the project up and running on your lo
 5.  Your detected emotion will be displayed.
 6.  Scroll down to see your personalized playlist.
 7.  Click the play button on any song to listen.
-
-## 🤝 Contributing
-
-Contributions are welcome! If you have suggestions for improving the project, please feel free to create a pull request or open an issue.
-
-1.  Fork the Project
-2.  Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3.  Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4.  Push to the Branch (`git push origin feature/AmazingFeature`)
-5.  Open a Pull Request
 
 ## 📄 License
 
